@@ -1107,7 +1107,7 @@ class StreamingDataset(Array, IterableDataset):
             # edge case where it may not be present (see the note in get_item()). If not present,
             # pick the next lowest shard.
             if self._shard_states[shard_id] != _ShardState.LOCAL:
-                print("Found shard to evict")
+                print("Picking next lowest shard.")
                 self._shard_access_times[shard_id] = NEVER
                 continue
 
@@ -1115,6 +1115,7 @@ class StreamingDataset(Array, IterableDataset):
             break
 
         # Evict that shard.
+        print("Exited while, evicting shard.")
         self._evict_shard(shard_id)
 
     def evict_shard(self, shard_id: int) -> None:
