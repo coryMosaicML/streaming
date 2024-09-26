@@ -1090,7 +1090,7 @@ class StreamingDataset(Array, IterableDataset):
         while True:
             # Find the shard with the oldest last access time.
             shard_id = int(self._shard_access_times.numpy().argmin())
-            print("Trying to evict shard", shard_id)
+            print("Trying to evict shard", shard_id, "of", self._shard_access_times.numpy().shape[0])
             # Check the shard's last access time. If it is NEVER, there are no downloaded shards to
             # evict. If any shards are currently being downloaded, wait, else raise an error.
             if self._shard_access_times[shard_id] == NEVER:
@@ -1107,7 +1107,7 @@ class StreamingDataset(Array, IterableDataset):
             # edge case where it may not be present (see the note in get_item()). If not present,
             # pick the next lowest shard.
             if self._shard_states[shard_id] != _ShardState.LOCAL:
-                print("Picking next lowest shard.")
+                print("Picking next lowest shard because shard state is", self._shard_states[shard_id])
                 self._shard_access_times[shard_id] = NEVER
                 continue
 
