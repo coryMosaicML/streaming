@@ -1088,10 +1088,9 @@ class StreamingDataset(Array, IterableDataset):
         This method is called internally by ``prepare_shard`` to clear space for more downloads.
         """
         while True:
-            print("Trying to evict shard")
             # Find the shard with the oldest last access time.
             shard_id = int(self._shard_access_times.numpy().argmin())
-
+            print("Trying to evict shard", shard_id)
             # Check the shard's last access time. If it is NEVER, there are no downloaded shards to
             # evict. If any shards are currently being downloaded, wait, else raise an error.
             if self._shard_access_times[shard_id] == NEVER:
@@ -1115,7 +1114,7 @@ class StreamingDataset(Array, IterableDataset):
             break
 
         # Evict that shard.
-        print("Exited while, evicting shard.")
+        print("Exited while, evicting shard.", shard_id)
         self._evict_shard(shard_id)
 
     def evict_shard(self, shard_id: int) -> None:
