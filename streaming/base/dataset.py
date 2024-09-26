@@ -1096,6 +1096,7 @@ class StreamingDataset(Array, IterableDataset):
             if self._shard_access_times[shard_id] == NEVER:
                 if (self._shard_states.numpy() == _ShardState.PREPARING).any():
                     sleep(TICK)
+                    print("Going to sleep for", TICK, "on shard", shard_id)
                     continue
                 else:
                     raise ValueError(
