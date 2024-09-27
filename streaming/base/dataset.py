@@ -1087,34 +1087,6 @@ class StreamingDataset(Array, IterableDataset):
 
         This method is called internally by ``prepare_shard`` to clear space for more downloads.
         """
-        '''
-        while True:
-            # Find the shard with the oldest last access time.
-            shard_id = int(self._shard_access_times.numpy().argmin())
-            print("Trying to evict shard", shard_id, "of", self._shard_access_times.numpy().shape[0])
-            # Check the shard's last access time. If it is NEVER, there are no downloaded shards to
-            # evict. If any shards are currently being downloaded, wait, else raise an error.
-            if self._shard_access_times[shard_id] == NEVER:
-                if (self._shard_states.numpy() == _ShardState.PREPARING).any():
-                    sleep(TICK)
-                    print("Going to sleep for", TICK, "on shard", shard_id)
-                    continue
-                else:
-                    raise ValueError(
-                        f'Tried to evict a shard {shard_id}, but no shards are present to evict ' +
-                        f'(cache usage {self.cache_usage} of {self.cache_limit})')
-
-            # The shard has a valid timestamp. Now, verify that it is actually present. There is an
-            # edge case where it may not be present (see the note in get_item()). If not present,
-            # pick the next lowest shard.
-            if self._shard_states[shard_id] != _ShardState.LOCAL:
-                print("Picking next lowest shard because shard state is", self._shard_states[shard_id])
-                self._shard_access_times[shard_id] = NEVER
-                continue
-
-            # Break on success.
-            break
-        '''
         # Smooth brain look for shard with lowest access time, considering only local shards
         states = self._shard_states.numpy()
         access_times = self._shard_access_times.numpy()
@@ -1124,7 +1096,6 @@ class StreamingDataset(Array, IterableDataset):
         local_times = access_times[indices]
         shard_id = indices[np.argmin(local_times)]
         # Evict that shard.
-        print("Evicting shard.", shard_id)
         self._evict_shard(shard_id)
 
     def evict_shard(self, shard_id: int) -> None:
